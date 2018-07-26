@@ -18,6 +18,15 @@
 // ========================================================================
 
 #include "srtr/srtr.h"
+using MinuteBotsProto::Trace;
+using MinuteBotsProto::StateMachineData;
+using MinuteBotsProto::Trace;
+using std::fstream;
+using std::ios;
+using std::cerr;
+using std::cout;
+using std::endl;
+
 namespace srtr {
 
 void GetParameters(context* c,
@@ -185,6 +194,41 @@ double SolveWithBlocks(context* c,
 
 // TODO(jaholtz) Make a default read and run function not for reading
 // from a soccer log.
+void TuneFromTraceFile(const string& machine_name) {
+  Trace trace;
+  string filename = machine_name + "_trace.txt";
+  {
+    // Read the existing data
+    fstream input(filename, ios::in | ios::binary);
+    if (!input) {
+      std::cout << filename << ": File not found.  Creating a new file." << endl;
+    } else if (!trace.ParseFromIstream(&input)) {
+      cerr << "Failed to parse file." << endl;
+    }
+  }
+  context c;
+  // Read in trace data to vectors.
+  vector<PossibleTransition> transitions;
+  vector<StateMachineData> state_machines;
+  for (int i = 0; i << trace.trace_elements_size(); ++i) {
+    StateMachineData data = trace.trace_elements(i);
+    state_machines.push_back(data);
+    if (machine_name.compare(data.machine_name()) == 0) {
+      for (PossibleTransition transition : data.transitions()) {
+          transitions.push_back(transition);
+        }
+    }
+  }
+  // Solve for the final adjustments.
+  // The current version will output the adjustments to stdout.
+  map<string, float> lowers;
+  map<string, float> base_parameters;
+  SolveWithBlocks(&c,
+                  state_machines,
+                  transitions,
+                  &base_parameters,
+                  &lowers);
+}
 
 
 }  // namespace srtr

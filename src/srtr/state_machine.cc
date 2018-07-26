@@ -19,10 +19,19 @@
 #include "srtr/state_machine.h"
 
 #include <string>
+#include <iostream>
+#include <fstream>
 
 using std::map;
 using std::unique_ptr;
 using MinuteBotsProto::StateMachineData;
+using MinuteBotsProto::Trace;
+using std::fstream;
+using std::ios;
+using std::cerr;
+using std::cout;
+using std::endl;
+
 namespace srtr {
 
 StateMachine::StateMachine(const string& machine_name) :
@@ -198,7 +207,29 @@ void StateMachine::Run() {
   SetupMessage();
   Transition();
   state_();
-  // TODO(jaholtz) Add Code to build composite message and write to a file.
+  // Write the trace out to a file (update the trace file).
+  Trace trace;
+  string filename = machine_name_ + "_trace.txt";
+  {
+    // Read the existing address book.
+    fstream input(filename, ios::in | ios::binary);
+    if (!input) {
+      std::cout << filename << ": File not found.  Creating a new file." << endl;
+    } else if (!trace.ParseFromIstream(&input)) {
+      cerr << "Failed to parse file." << endl;
+    }
+  }
+
+  // Add an address.
+  *(trace.add_trace_elements()) = log_message_;
+
+  {
+    // Write the new address book back to disk.
+    fstream output(filename, ios::out | ios::trunc | ios::binary);
+    if (!trace.SerializeToOstream(&output)) {
+      cerr << "Failed to write to file." << endl;\
+    }
+  }
 }
 
 }  // namespace srtr
