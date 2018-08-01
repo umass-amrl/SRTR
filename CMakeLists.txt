@@ -47,15 +47,16 @@ INCLUDE_DIRECTORIES(third_party/)
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIR})
 
 INCLUDE_DIRECTORIES(${RE2_INCLUDE_DIR})
-ADD_LIBRARY(protobuf_library ${PROTO_SRCS} ${PROTO_PY})
-TARGET_LINK_LIBRARIES(protobuf_library ${libs})
+ADD_LIBRARY(trace_library ${PROTO_SRCS} ${PROTO_PY})
+TARGET_LINK_LIBRARIES(trace_library ${libs})
 
 ADD_LIBRARY(srtr_library
             src/srtr/srtr.cpp
+            ${PROTO_SRCS} ${PROTO_PY}
             src/srtr/state_machine.cc)
 
 TARGET_LINK_LIBRARIES(srtr_library
-                      protobuf_library ${libs})
+                      trace_library ${libs})
 
 # ADD_EXECUTABLE(z3_tuner src/magic_debugging/tuning_sketch.cpp)
 # TARGET_LINK_LIBRARIES(z3_tuner
