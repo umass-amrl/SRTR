@@ -2,6 +2,7 @@
 # times and more readable output.
 C_compiler=/usr/bin/clang
 CXX_compiler=/usr/bin/clang++
+INSTALL_PATH?=/usr/local/lib
 
 # GCC is better for release mode due to the speed of its output, and its support
 # for OpenMP.
@@ -45,3 +46,7 @@ $(build_dir):
 
 cleanup_cache:
 	rm -rf $(build_dir)
+
+install:
+	sudo cp lib/* $(INSTALL_PATH)
+
