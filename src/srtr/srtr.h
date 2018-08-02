@@ -41,8 +41,8 @@ using MinuteBotsProto::TransitionClause;
 using MinuteBotsProto::PossibleTransition;
 using std::string;
 using std::endl;
-std::ofstream data_file;
-std::ofstream num_file;
+// std::ofstream data_file;
+// std::ofstream num_file;
 
 #ifndef SRC_SRTR_SRTR_H_
 #define SRC_SRTR_SRTR_H_

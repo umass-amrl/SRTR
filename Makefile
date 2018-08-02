@@ -3,6 +3,7 @@
 C_compiler=/usr/bin/clang
 CXX_compiler=/usr/bin/clang++
 INSTALL_PATH?=/usr/local/lib
+INCLUDE_PATH?=/usr/include
 
 # GCC is better for release mode due to the speed of its output, and its support
 # for OpenMP.
@@ -48,5 +49,5 @@ cleanup_cache:
 	rm -rf $(build_dir)
 
 install:
-	sudo cp lib/* $(INSTALL_PATH)
+	sudo mkdir -p $(INCLUDE_PATH)/srtr && sudo cp lib/* $(INSTALL_PATH) && sudo cp src/srtr/*.h $(INCLUDE_PATH)/srtr
 
