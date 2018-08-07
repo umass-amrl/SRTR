@@ -214,7 +214,9 @@ void StateMachine::Run() {
     // Read the existing address book.
     fstream input(filename, ios::in | ios::binary);
     if (!input) {
-      std::cout << filename << ": File not found.  Creating a new file." << endl;
+      std::cout << filename
+                << ": File not found.  Creating a new file."
+                << endl;
     } else if (!trace.ParseFromIstream(&input)) {
       cerr << "Failed to parse file." << endl;
     }
