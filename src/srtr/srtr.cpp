@@ -170,30 +170,61 @@ double SolveWithBlocks(context* c,
 
   std::cout << "Parameter Adjustments" << std::endl;
   std::cout << "---------------------------------" << std::endl;
-//   double start_time = GetMonotonicTime();
   if (sat == opt.check()) {
+      std::cout << opt.get_model() << std::endl;
+    int i = 0;
     for (auto param : tuned_parameters) {
-      int i = 0;
       // TODO(jaholtz) param_names may need to be corrected.
       std::cout << param;
       string handle_test = opt.upper(handles[i]).get_decimal_string(5);
       string handle_test_lower = opt.lower(handles[i]).get_decimal_string(5);
       (*lowers)[param_names[i]] = std::atof(handle_test.c_str());
       std::cout << ": " <<
-          opt.get_model().get_const_interp(epsilon_values[i].decl())
+          opt.get_model().get_const_interp(tuning.at(param).decl());
+      std::cout << " : " <<
+          opt.get_model().get_const_interp(
+            tuning.at(param).decl()).get_decimal_string(4)
           << std::endl;
       i++;
     }
   }
+  std::cout << "thresholds_angle_(" << base_parameters.at("angle") << " + " <<
+    opt.get_model().get_const_interp(
+      tuning.at("angle").decl()).get_decimal_string(4)
+    << ", \"angle\", this)," << std::endl;
+  std::cout << "thresholds_distance_(" << base_parameters.at("distance") <<
+  " + " <<
+    opt.get_model().get_const_interp(
+      tuning.at("distance").decl()).get_decimal_string(4)
+    << ", \"distance\", this)," << std::endl;
+  std::cout << "thresholds_y_prime_vel_(" << base_parameters.at("y_prime_vel")
+  <<
+  " + " <<
+    opt.get_model().get_const_interp(
+      tuning.at("y_prime_vel").decl()).get_decimal_string(4)
+    << ", \"y_prime_vel\", this)," << std::endl;
+  std::cout << "thresholds_relative_vel_(" << base_parameters.at("relative_vel")
+  <<
+  " + " <<
+    opt.get_model().get_const_interp(
+      tuning.at("relative_vel").decl()).get_decimal_string(4)
+    << ", \"relative_vel\", this)," << std::endl;
+  std::cout << "thresholds_align_(" << base_parameters.at("align") <<
+  " + " <<
+    opt.get_model().get_const_interp(
+      tuning.at("align").decl()).get_decimal_string(4)
+    << ", \"align\", this)," << std::endl;
+  std::cout << "thresholds_angular_vel_(" << base_parameters.at("angular_vel")
+  <<
+  " + " <<
+    opt.get_model().get_const_interp(
+      tuning.at("angular_vel").decl()).get_decimal_string(4)
+    << ", \"angular_vel\", this)," << std::endl;
   std::cout << "---------------------------------" << std::endl;
   std::cout << endl;
-//   double end_time = GetMonotonicTime();
-//   double execution_time = end_time - start_time;
   return 0;
 }
 
-// TODO(jaholtz) Make a default read and run function not for reading
-// from a soccer log.
 void TuneFromTraceFile(const string& machine_name) {
   Trace trace;
   string filename = machine_name + "_trace.txt";
