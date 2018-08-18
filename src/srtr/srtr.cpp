@@ -241,7 +241,7 @@ void TuneFromTraceFile(const string& machine_name) {
   // Read in trace data to vectors.
   vector<PossibleTransition> transitions;
   vector<StateMachineData> state_machines;
-  for (int i = 0; i << trace.trace_elements_size(); ++i) {
+  for (int i = 0; i < trace.trace_elements_size(); ++i) {
     StateMachineData data = trace.trace_elements(i);
     state_machines.push_back(data);
     if (machine_name.compare(data.machine_name()) == 0) {
