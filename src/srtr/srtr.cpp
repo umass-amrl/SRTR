@@ -188,41 +188,6 @@ double SolveWithBlocks(context* c,
       i++;
     }
   }
-  // Testing printout
-  // std::cout << "thresholds_angle_(" << base_parameters.at("angle") << " + " <<
-  //   opt.get_model().get_const_interp(
-  //     tuning.at("angle").decl()).get_decimal_string(4)
-  //   << ", \"angle\", this)," << std::endl;
-  // std::cout << "thresholds_distance_(" << base_parameters.at("distance") <<
-  // " + " <<
-  //   opt.get_model().get_const_interp(
-  //     tuning.at("distance").decl()).get_decimal_string(4)
-  //   << ", \"distance\", this)," << std::endl;
-  // std::cout << "thresholds_y_prime_vel_(" << base_parameters.at("y_prime_vel")
-  // <<
-  // " + " <<
-  //   opt.get_model().get_const_interp(
-  //     tuning.at("y_prime_vel").decl()).get_decimal_string(4)
-  //   << ", \"y_prime_vel\", this)," << std::endl;
-  // std::cout << "thresholds_relative_vel_(" << base_parameters.at("relative_vel")
-  // <<
-  // " + " <<
-  //   opt.get_model().get_const_interp(
-  //     tuning.at("relative_vel").decl()).get_decimal_string(4)
-  //   << ", \"relative_vel\", this)," << std::endl;
-  // std::cout << "thresholds_align_(" << base_parameters.at("align") <<
-  // " + " <<
-  //   opt.get_model().get_const_interp(
-  //     tuning.at("align").decl()).get_decimal_string(4)
-  //   << ", \"align\", this)," << std::endl;
-  // std::cout << "thresholds_angular_vel_(" << base_parameters.at("angular_vel")
-  // <<
-  // " + " <<
-  //   opt.get_model().get_const_interp(
-  //     tuning.at("angular_vel").decl()).get_decimal_string(4)
-  //   << ", \"angular_vel\", this)," << std::endl;
-  // std::cout << "---------------------------------" << std::endl;
-  // std::cout << endl;
   return 0;
 }
 

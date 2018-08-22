@@ -24,7 +24,6 @@ message PossibleTransition {
   required string potential_state = 1;
   optional bool should_transition = 4;
   optional bool human_constraint = 5;
-  repeated TransitionClause clauses = 6;
   repeated TransitionBlock blocks = 7;
   optional string start_state = 8;
 }
@@ -33,11 +32,7 @@ message StateMachineData {
   required string machine_name = 1;
   repeated MapFieldEntry tuneable_params = 2;
   required string state = 3;
-  optional bool should_transition = 4;
-  optional bool human_constraint = 5;
-  repeated TransitionClause clauses = 6;
   repeated PossibleTransition transitions = 7;
-  repeated string tuned_factors = 8;
 }
 
 message Trace {
