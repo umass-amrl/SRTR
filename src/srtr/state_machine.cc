@@ -40,9 +40,9 @@ machine_name_(machine_name) {}
 StateMachine::RepairableParam::RepairableParam(const float& value,
                                                 const string& name,
                                                 StateMachine* parent)
-: value_(value),
-name_(name),
-parent_(parent) {
+: name_(name),
+  value_(value),
+  parent_(parent) {
   parent_->SetupMessage();
 }
 
@@ -189,6 +189,11 @@ bool StateMachine::RepairableParam::operator<(const float& x) {
 StateMachine::RepairableParam::operator float() {
   return value_;
 }
+
+void StateMachine::RepairableParam::SetValue(const float& x) {
+  value_ = x;
+}
+
 
 void StateMachine::SetupMessage() {
   log_message_.Clear();

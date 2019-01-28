@@ -65,10 +65,13 @@ class StateMachine{
     bool operator>(const float& x);
     bool operator<(const float& x);
     explicit operator float();
+    // Allows setting of the repaired params actual value.
+    void SetValue(const float& x);
+
+    string name_;
 
    private:
     float value_;
-    string name_;
     StateMachine* parent_;
   };
 

@@ -64,7 +64,7 @@ double SolveWithBlocks(context* c,
              map<string, float>* params,
              map<string, float>* lowers);
 
-void TuneFromTraceFile(const string& machine_name);
+void TuneFromTraceFile(const string& filename, const string&  machine_name);
 
 }  // namespace srtr
 
