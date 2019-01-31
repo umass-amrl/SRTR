@@ -67,7 +67,7 @@ void GetParameters(context* c,
   }
 }
 
-double SolveWithBlocks(context* c,
+nlohmann::json SolveWithBlocks(context* c,
              const vector<StateMachineData>& machines,
              const vector<PossibleTransition>& data,
              map<string, float>* params,
@@ -213,10 +213,11 @@ double SolveWithBlocks(context* c,
   }
   std::ofstream json_file("srtr_output.json");
   json_file << std::setw(4) << config_json << std::endl;
-  return 0;
+  return config_json;
 }
 
-void TuneFromTraceFile(const string& filename, const string& machine_name) {
+void TuneFromTraceFile(const string& filename,
+                       const string& machine_name) {
   Trace trace;
   // Read Text trace from file
   std::ifstream trace_file;
@@ -239,7 +240,6 @@ void TuneFromTraceFile(const string& filename, const string& machine_name) {
     }
   }
   // Solve for the final adjustments.
-  // The current version will output the adjustments to stdout.
   map<string, float> lowers;
   map<string, float> base_parameters;
   SolveWithBlocks(&c,

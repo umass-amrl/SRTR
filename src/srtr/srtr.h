@@ -25,6 +25,7 @@
 #include <string>
 #include <cmath>
 #include "z3++.h" //NOLINT
+#include "third_party/json.hpp"
 #include "tuning_data.pb.h"
 
 
@@ -58,7 +59,7 @@ void GetParameters(context* c,
                    map<string, expr>* absolutes,
                    vector<optimize::handle>* handles);
 
-double SolveWithBlocks(context* c,
+nlohmann::json SolveWithBlocks(context* c,
              const vector<StateMachineData>& machines,
              const vector<PossibleTransition>& data,
              map<string, float>* params,
