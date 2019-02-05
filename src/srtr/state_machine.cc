@@ -38,10 +38,14 @@ StateMachine::StateMachine(const string& machine_name) :
 machine_name_(machine_name) {}
 
 StateMachine::RepairableParam::RepairableParam(const float& value,
-                                                const string& name,
-                                                StateMachine* parent)
+                                               const float& min,
+                                               const float& max,
+                                               const string& name,
+                                               StateMachine* parent)
 : name_(name),
   value_(value),
+  minimum_(min),
+  maximum_(max),
   parent_(parent) {
   parent_->SetupMessage();
 }
@@ -51,16 +55,16 @@ void StateMachine::AddBlock(const bool& is_and) {
   // Search for a message with this start->potential combo
   for (int i = 0; i < log_message_.transitions_size(); ++i) {
     MinuteBotsProto::PossibleTransition* transition
-    = log_message_.mutable_transitions(i);
+        = log_message_.mutable_transitions(i);
     // If our message contains this transition add a block to it
     if (transition->potential_state().compare(potential_state_) == 0 &&
-      transition->start_state().compare(state_.name_) == 0) {
+        transition->start_state().compare(state_.name_) == 0) {
       found = true;
-    MinuteBotsProto::TransitionBlock block;
-    block.set_and_(is_and);
-    *(transition->add_blocks()) = block;
-    // Set the block index
-    block_index_ = transition->blocks_size() - 1;
+      MinuteBotsProto::TransitionBlock block;
+      block.set_and_(is_and);
+      *(transition->add_blocks()) = block;
+      // Set the block index
+      block_index_ = transition->blocks_size() - 1;
       }
   }
   // If you didn't find it then we have to add the entire
@@ -86,7 +90,7 @@ void StateMachine::SetTransition(const bool& should_transition) {
     MinuteBotsProto::PossibleTransition* transition =
     log_message_.mutable_transitions(i);
     if (transition->potential_state().compare(potential_state_) == 0 &&
-      transition->start_state().compare(state_.name_) == 0) {
+       transition->start_state().compare(state_.name_) == 0) {
       transition->set_should_transition(should_transition);
       }
   }
@@ -98,11 +102,13 @@ bool StateMachine::RepairableParam::operator>(const float& x) {
   // Adds the parameter itself to the parameter map when it is used
   MinuteBotsProto::MapFieldEntry entry;
   entry.set_key(name_);
-  entry.set_value(value_);
+  entry.set_value(ScaleValue(value_));
+  entry.set_min(minimum_);
+  entry.set_max(maximum_);
   (*log_message->add_tuneable_params()) = entry;
 
   MinuteBotsProto::TransitionClause clause;
-  clause.set_lhs(x);
+  clause.set_lhs(ScaleValue(x));
   clause.set_rhs(name_);
   clause.set_comparator("<");
   clause.set_and_(parent_->and_clause_);  // How to fill this in?
@@ -149,11 +155,13 @@ bool StateMachine::RepairableParam::operator<(const float& x) {
   // Adds the parameter itself to the parameter map when it is used
   MinuteBotsProto::MapFieldEntry entry;
   entry.set_key(name_);
-  entry.set_value(value_);
+  entry.set_value(ScaleValue(value_));
+  entry.set_min(minimum_);
+  entry.set_max(maximum_);
   (*log_message->add_tuneable_params()) = entry;
 
   MinuteBotsProto::TransitionClause clause;
-  clause.set_lhs(x);
+  clause.set_lhs(ScaleValue(x));
   clause.set_rhs(name_);
   clause.set_comparator(">");
   clause.set_and_(parent_->and_clause_);  // How to fill this in?
@@ -194,6 +202,13 @@ void StateMachine::RepairableParam::SetValue(const float& x) {
   value_ = x;
 }
 
+float StateMachine::RepairableParam::ScaleValue(const float& x) {
+  return (x - minimum_) / (maximum_ - minimum_) * srtr::kParamMultiplier;
+}
+
+float StateMachine::RepairableParam::RevertScale(const float& x) {
+  return ((x / kParamMultiplier) * (maximum_ / minimum_)) + minimum_;
+}
 
 void StateMachine::SetupMessage() {
   log_message_.Clear();

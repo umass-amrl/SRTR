@@ -40,7 +40,7 @@ using std::string;
 #define SRC_SRTR_STATE_MACHINE_H_
 
 namespace srtr {
-
+const float kParamMultiplier = 1.0;
 class StateMachine{
  public:
   explicit StateMachine(const string& machine_name);
@@ -59,6 +59,8 @@ class StateMachine{
   class RepairableParam {
    public:
     RepairableParam(const float& value,
+                    const float& min,
+                    const float& max,
                     const string& name,
                     StateMachine* parent);
     // Trace Logging happens in the comparison operators.
@@ -67,11 +69,18 @@ class StateMachine{
     explicit operator float();
     // Allows setting of the repaired params actual value.
     void SetValue(const float& x);
+    // Scales a value between 0 and 1, then multiplies by a set value.
+    float ScaleValue(const float& x);
+    // Returns a value to its proper range.
+    float RevertScale(const float& x);
 
     string name_;
 
    private:
     float value_;
+    // Used for scaling the parameters to between 0 and 1.
+    const float minimum_;
+    const float maximum_;
     StateMachine* parent_;
   };
 

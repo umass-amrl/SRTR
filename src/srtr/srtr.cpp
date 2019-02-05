@@ -36,7 +36,7 @@ namespace srtr {
 void GetParameters(context* c,
                    optimize* opt,
                    const vector<StateMachineData>& machines,
-                   map<string, float>* base_parameters,
+                   map<string, MapFieldEntry>* base_parameters,
                    vector<string>* param_names,
                    map<string, expr>* epsilons,
                    map<string, expr>* absolutes,
@@ -47,7 +47,7 @@ void GetParameters(context* c,
     for (int i = 0; i < data.tuneable_params_size(); ++i) {
       MapFieldEntry entry = data.tuneable_params(i);
       if (!base_parameters->count(entry.key())) {
-        (*base_parameters)[entry.key()] = entry.value();
+        (*base_parameters)[entry.key()] = entry;
         expr temp = c->real_const(entry.key().c_str());
         param_names->push_back(entry.key());
         expr absolute = c->real_val("absolute");
@@ -70,10 +70,10 @@ void GetParameters(context* c,
 nlohmann::json SolveWithBlocks(context* c,
              const vector<StateMachineData>& machines,
              const vector<PossibleTransition>& data,
-             map<string, float>* params,
+             map<string, MapFieldEntry>* params,
              map<string, float>* lowers) {
   // The thresholds we will tune and their epsilons
-  map<string, float> base_parameters;
+  map<string, MapFieldEntry> base_parameters;
   map<string, expr> tuning;
   vector<string> param_names;
   vector<optimize::handle> handles;
@@ -116,12 +116,12 @@ nlohmann::json SolveWithBlocks(context* c,
         // Identify which comparator is used and add the statement
         if (clause.comparator().compare(">") == 0) {
           expr temp = c->real_val(std::to_string(lhs).c_str())
-              > c->real_val(std::to_string(base_parameters[rhs]).c_str())
+             > c->real_val(std::to_string(base_parameters[rhs].value()).c_str())
                   + tuning.at(rhs);
           clause_bool = temp;
         } else if (clause.comparator().compare("<") == 0) {
           expr temp = c->real_val(std::to_string(lhs).c_str())
-              < c->real_val(std::to_string(base_parameters[rhs]).c_str())
+             < c->real_val(std::to_string(base_parameters[rhs].value()).c_str())
                   + tuning.at(rhs);
           clause_bool = temp;
         }  // etc for all handled comparators right now only handles ">" and "<"
@@ -195,7 +195,9 @@ nlohmann::json SolveWithBlocks(context* c,
   // Generating a JSON config file for the behavior as output.
   nlohmann::json config_json;
   for (auto const& param: base_parameters) {
-    float value = param.second;
+    float value = param.second.value();
+    const float min = param.second.min();
+    const float max = param.second.max();
     auto map_it = tuned_parameters.find(param.first);
     if (map_it != tuned_parameters.end()) {
       // Get fractional components of delta
@@ -209,7 +211,8 @@ nlohmann::json SolveWithBlocks(context* c,
         value += delta;
       }
     }
-    config_json[param.first] = value;
+    config_json[param.first] =
+        ((value / srtr::kParamMultiplier) * (max - min)) + min;
   }
   std::ofstream json_file("srtr_output.json");
   json_file << std::setw(4) << config_json << std::endl;
@@ -241,7 +244,7 @@ void TuneFromTraceFile(const string& filename,
   }
   // Solve for the final adjustments.
   map<string, float> lowers;
-  map<string, float> base_parameters;
+  map<string, MapFieldEntry> base_parameters;
   SolveWithBlocks(&c,
                   state_machines,
                   transitions,

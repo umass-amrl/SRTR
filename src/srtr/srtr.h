@@ -49,6 +49,7 @@ using std::endl;
 #define SRC_SRTR_SRTR_H_
 
 namespace srtr {
+const float kParamMultiplier = 1.0;
 
 void GetParameters(context* c,
                    optimize* opt,
@@ -62,7 +63,7 @@ void GetParameters(context* c,
 nlohmann::json SolveWithBlocks(context* c,
              const vector<StateMachineData>& machines,
              const vector<PossibleTransition>& data,
-             map<string, float>* params,
+             map<string, MapFieldEntry>* params,
              map<string, float>* lowers);
 
 void TuneFromTraceFile(const string& filename, const string&  machine_name);
