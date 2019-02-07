@@ -49,7 +49,7 @@ using std::endl;
 #define SRC_SRTR_SRTR_H_
 
 namespace srtr {
-const float kParamMultiplier = 1.0;
+const float kParamMultiplier = 10000000.0;
 
 void GetParameters(context* c,
                    optimize* opt,

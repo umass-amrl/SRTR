@@ -177,11 +177,10 @@ nlohmann::json SolveWithBlocks(context* c,
   std::cout << "Parameter Adjustments" << std::endl;
   std::cout << "---------------------------------" << std::endl;
   if (sat == opt.check()) {
-      std::cout << opt.get_model() << std::endl;
-      std::cout << opt.objectives() << std::endl;
+    std::cout << opt.get_model() << std::endl;
+    std::cout << opt.objectives() << std::endl;
     int i = 0;
     for (auto param : tuned_parameters) {
-      // TODO(jaholtz) param_names may need to be corrected.
       std::cout << param;
       std::cout << ": " <<
           opt.get_model().get_const_interp(tuning.at(param).decl());
@@ -202,9 +201,9 @@ nlohmann::json SolveWithBlocks(context* c,
     if (map_it != tuned_parameters.end()) {
       // Get fractional components of delta
       const float denom = opt.get_model().get_const_interp(
-          tuning.at(param.first).decl()).denominator().get_numeral_int();
+          tuning.at(param.first).decl()).denominator().get_numeral_int64();
       const float num = opt.get_model().get_const_interp(
-          tuning.at(param.first).decl()).numerator().get_numeral_int();
+          tuning.at(param.first).decl()).numerator().get_numeral_int64();
       if (fabs(denom) > 0.0) {
         // Doing division ourselves, z3 can't be trusted
         const float delta = num / denom;

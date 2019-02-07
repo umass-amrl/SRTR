@@ -40,7 +40,7 @@ using std::string;
 #define SRC_SRTR_STATE_MACHINE_H_
 
 namespace srtr {
-const float kParamMultiplier = 1.0;
+  const float kParamMultiplier = 10000000.0;
 class StateMachine{
  public:
   explicit StateMachine(const string& machine_name);
