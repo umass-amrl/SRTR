@@ -120,6 +120,10 @@ class StateMachine{
   string machine_name_;
   State state_;
   string potential_state_;
+  // In continue mode we will lock state machine out of a particular state.
+  bool continue_mode_;
+  // The state to issue negative constraints for during continue
+  string continue_state_;
   bool and_clause_;
   bool and_block_;
   int block_index_;

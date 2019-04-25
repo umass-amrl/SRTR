@@ -16,7 +16,7 @@ def GetParameters(trace, base_params, param_names, tuning, absolutes):
         base_params[param.key] = param
         param_names.append(param.key)
         absolute = Real('absolute')
-        absolute = If(temp >= 0, temp, -temp)
+        absolute = If(temp >= 0, temp / param.value, -temp / param.value)
         absolutes[param.key] = absolute
         tuning[param.key] = temp
 
@@ -66,19 +66,27 @@ def BuildProblem(transitions, base_params, param_names, tuning, absolutes):
         z3_transition = Or(z3_transition, z3_block)
     if (constrained):
       if (trans.should_transition):
-        opt.add(z3_transition)
+        opt.add_soft(z3_transition)
       else:
-        opt.add(not z3_transition)
-  # Add Minimization
-  min_sum = Real('min_sum')
+        opt.add_soft(Not(z3_transition))
+
+  # Set min and max range on tuned_params
   for param in tuned_params:
-    min_sum += absolutes[param]
+    opt.add(tuning[param] > RealVal(-5000.0))
+    opt.add(tuning[param] < RealVal(5000.0))
+
   return opt, tuned_params
+
+def my_safe_repr(object, context, maxlevels, level):
+    typ = pprint._type(object)
+    if typ is unicode:
+        object = str(object)
+    return pprint._safe_repr(object, context, maxlevels, level)
 
 def Solve(opt, base_params, tuned_params, tuning):
   if(opt.check()):
     config_map = {}
-    kParamMultiplier = 10000000.0
+    kParamMultiplier = 1.0
     for key, param in base_params.iteritems():
       value = param.value
       range_min = param.min
@@ -88,12 +96,14 @@ def Solve(opt, base_params, tuned_params, tuning):
         numerator = z3_value.numerator_as_long()
         denom = z3_value.denominator_as_long()
         if (denom > 0.0):
-          delta = numerator / denom
+          delta = float(numerator) / float(denom)
           value += delta
-      config_map[param.key] = \
-          ((value / kParamMultiplier) * (range_max - range_min)) + range_min
+      config_map[param.key] = value
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(config_map)
+    # print(opt.model)
+    # print(opt.objectives())
+    print(json.dumps(config_map, sort_keys = True, 
+              indent = 4, ensure_ascii = False))
 
 def ReadTraceFromFile(filename):
   trace = tuning_data_pb2.Trace()
@@ -122,6 +132,44 @@ def SRTR(filename, machine_name):
   GetParameters(trace, base_params, param_names, tuning, absolutes)
   opt, tuned_params = \
     BuildProblem(transitions, base_params, param_names, tuning, absolutes)
+  # Add Minimization
+  # Maximizing the change
+  # opt.push()
+  # max_sum = Real('min_sum')
+  # first_sum = True
+  # for param in tuned_params:
+  #   if (first_sum):
+  #     max_sum = (tuning[param] / base_params[param].value)
+  #     first_sum = False
+  #   else:
+  #     max_sum += (tuning[param] / base_params[param].value)
+  # opt.maximize(max_sum)
+  # Solve(opt, base_params, tuned_params, tuning)
+  # opt.pop()
+  # opt.push()
+  # # Minimizing the change
+  # min_sum = Real('min_sum')
+  # first_sum = True
+  # for param in tuned_params:
+  #   if (first_sum):
+  #     min_sum = tuning[param] / base_params[param].value
+  #     first_sum = False
+  #   else:
+  #     min_sum += tuning[param] / base_params[param].value
+  # opt.minimize(min_sum)
+  # Solve(opt, base_params, tuned_params, tuning)
+  # opt.pop()
+  # Minimizing the absolute percent change
+  min_change = Real('min_change')
+  first_sum = True
+  for param in tuned_params:
+    if (first_sum):
+      min_change = absolutes[param]
+      first_sum = False
+    else:
+      min_change += absolutes[param]
+  opt.minimize(min_change)
+
   Solve(opt, base_params, tuned_params, tuning)
 
 # Check for input file

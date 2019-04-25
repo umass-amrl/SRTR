@@ -24,7 +24,6 @@
 #include "third_party/json.hpp"
 using MinuteBotsProto::Trace;
 using MinuteBotsProto::StateMachineData;
-using MinuteBotsProto::Trace;
 using std::fstream;
 using std::ios;
 using std::cerr;
@@ -52,8 +51,8 @@ void GetParameters(context* c,
         param_names->push_back(entry.key());
         expr absolute = c->real_val("absolute");
         absolute = ite(temp >= c->real_val(0),
-                      temp,
-                      -temp);
+                       temp / c->real_val(std::to_string(entry.value()).c_str()),
+                       -temp / c->real_val(std::to_string(entry.value()).c_str()));
         if (uninit) {
           sum = absolute;
           uninit = false;
@@ -195,8 +194,6 @@ nlohmann::json SolveWithBlocks(context* c,
   nlohmann::json config_json;
   for (auto const& param: base_parameters) {
     float value = param.second.value();
-    const float min = param.second.min();
-    const float max = param.second.max();
     auto map_it = tuned_parameters.find(param.first);
     if (map_it != tuned_parameters.end()) {
       // Get fractional components of delta
@@ -210,8 +207,7 @@ nlohmann::json SolveWithBlocks(context* c,
         value += delta;
       }
     }
-    config_json[param.first] =
-        ((value / srtr::kParamMultiplier) * (max - min)) + min;
+    config_json[param.first] = value;
   }
   std::ofstream json_file("srtr_output.json");
   json_file << std::setw(4) << config_json << std::endl;

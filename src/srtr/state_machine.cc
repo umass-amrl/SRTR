@@ -35,7 +35,9 @@ using std::endl;
 namespace srtr {
 
 StateMachine::StateMachine(const string& machine_name) :
-machine_name_(machine_name) {}
+machine_name_(machine_name),
+continue_mode_(false),
+continue_state_("None") {}
 
 StateMachine::RepairableParam::RepairableParam(const float& value,
                                                const float& min,
@@ -65,7 +67,7 @@ void StateMachine::AddBlock(const bool& is_and) {
       *(transition->add_blocks()) = block;
       // Set the block index
       block_index_ = transition->blocks_size() - 1;
-      }
+    }
   }
   // If you didn't find it then we have to add the entire
   // potential transition and the block
@@ -91,8 +93,15 @@ void StateMachine::SetTransition(const bool& should_transition) {
     log_message_.mutable_transitions(i);
     if (transition->potential_state().compare(potential_state_) == 0 &&
        transition->start_state().compare(state_.name_) == 0) {
-      transition->set_should_transition(should_transition);
+      // If the machine is in continue mode we will add some false constraints.
+      if (continue_mode_ &&
+          transition->potential_state().compare(continue_state_) == 0) {
+        transition->set_should_transition(false);
+        transition->set_human_constraint(true);
+      } else {
+        transition->set_should_transition(should_transition);
       }
+    }
   }
 }
 
@@ -102,13 +111,13 @@ bool StateMachine::RepairableParam::operator>(const float& x) {
   // Adds the parameter itself to the parameter map when it is used
   MinuteBotsProto::MapFieldEntry entry;
   entry.set_key(name_);
-  entry.set_value(ScaleValue(value_));
+  entry.set_value(value_);
   entry.set_min(minimum_);
   entry.set_max(maximum_);
   (*log_message->add_tuneable_params()) = entry;
 
   MinuteBotsProto::TransitionClause clause;
-  clause.set_lhs(ScaleValue(x));
+  clause.set_lhs(x);
   clause.set_rhs(name_);
   clause.set_comparator("<");
   clause.set_and_(parent_->and_clause_);  // How to fill this in?
@@ -155,13 +164,13 @@ bool StateMachine::RepairableParam::operator<(const float& x) {
   // Adds the parameter itself to the parameter map when it is used
   MinuteBotsProto::MapFieldEntry entry;
   entry.set_key(name_);
-  entry.set_value(ScaleValue(value_));
+  entry.set_value(value_);
   entry.set_min(minimum_);
   entry.set_max(maximum_);
   (*log_message->add_tuneable_params()) = entry;
 
   MinuteBotsProto::TransitionClause clause;
-  clause.set_lhs(ScaleValue(x));
+  clause.set_lhs(x);
   clause.set_rhs(name_);
   clause.set_comparator(">");
   clause.set_and_(parent_->and_clause_);  // How to fill this in?
