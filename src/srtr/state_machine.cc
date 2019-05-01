@@ -49,7 +49,18 @@ StateMachine::RepairableParam::RepairableParam(const float& value,
   minimum_(min),
   maximum_(max),
   parent_(parent) {
-  parent_->SetupMessage();
+    parent_->SetupMessage();
+}
+
+StateMachine::RepairableParam::RepairableParam(const float& value,
+                                               const string& name,
+                                               StateMachine* parent)
+: name_(name),
+  value_(value),
+  minimum_(10000),
+  maximum_(10000),
+  parent_(parent) {
+    parent_->SetupMessage();
 }
 
 void StateMachine::AddBlock(const bool& is_and) {

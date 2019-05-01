@@ -63,6 +63,10 @@ class StateMachine{
                     const float& max,
                     const string& name,
                     StateMachine* parent);
+
+    RepairableParam(const float& value,
+                    const string& name,
+                    StateMachine* parent);
     // Trace Logging happens in the comparison operators.
     bool operator>(const float& x);
     bool operator<(const float& x);
