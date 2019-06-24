@@ -63,6 +63,10 @@ StateMachine::RepairableParam::RepairableParam(const float& value,
     parent_->SetupMessage();
 }
 
+MinuteBotsProto::StateMachineData StateMachine::GetTransitionLog() {
+  return log_message_;
+}
+
 void StateMachine::AddBlock(const bool& is_and) {
   bool found = false;
   // Search for a message with this start->potential combo

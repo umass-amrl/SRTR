@@ -53,6 +53,8 @@ class StateMachine{
   // state machine.
   virtual void Transition() = 0;
 
+  MinuteBotsProto::StateMachineData GetTransitionLog();
+
   // RepairableParam Class is used to handle the logging of transition function
   // execution traces. Parameters which can be repaired with SRTR should be
   // stored as RepairableParams.
